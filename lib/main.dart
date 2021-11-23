@@ -46,26 +46,114 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class Board extends StatelessWidget {
+class Board extends StatefulWidget {
   const Board({Key? key}) : super(key: key);
 
-  final _board = const [
-    ['a8', 'b8', 'c8', 'd8', 'e8', 'f8', 'g8', 'h8'],
-    ['a7', 'b7', 'c7', 'd7', 'e7', 'f7', 'g7', 'h7'],
-    ['a6', 'b6', 'c6', 'd6', 'e6', 'f6', 'g6', 'h6'],
-    ['a5', 'b5', 'c5', 'd5', 'e5', 'f5', 'g5', 'h5'],
-    ['a4', 'b4', 'c4', 'd4', 'e4', 'f4', 'g4', 'h4'],
-    ['a3', 'b3', 'c3', 'd3', 'e3', 'f3', 'g3', 'h3'],
-    ['a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2'],
-    ['a1', 'b1', 'c1', 'd1', 'e1', 'f1', 'g1', 'h1'],
+  static final _wp = Piece.white(name: 'white pawn', display: 'wp');
+  static final _wr = Piece.white(name: 'white rook', display: 'wr');
+  static final _wk = Piece.white(name: 'white knight', display: 'wk');
+  static final _wb = Piece.white(name: 'white bishop', display: 'wb');
+  static final _wq = Piece.white(name: 'white queen', display: 'wq');
+  static final _wking = Piece.white(name: 'white king', display: 'wK');
+
+  static final _bp = Piece.black(name: 'black pawn', display: 'bp');
+  static final _br = Piece.black(name: 'black rook', display: 'br');
+  static final _bk = Piece.black(name: 'black knight', display: 'bk');
+  static final _bb = Piece.black(name: 'black bishop', display: 'bb');
+  static final _bq = Piece.black(name: 'black queen', display: 'bq');
+  static final _bking = Piece.black(name: 'black king', display: 'bK');
+
+  @override
+  State<Board> createState() => _BoardState();
+}
+
+class _BoardState extends State<Board> {
+  final List<List<Piece?>> _board = [
+    [
+      Board._br,
+      Board._bk,
+      Board._bb,
+      Board._bq,
+      Board._bking,
+      Board._bb,
+      Board._bk,
+      Board._br,
+    ],
+    [
+      Board._bp,
+      Board._bp,
+      Board._bp,
+      Board._bp,
+      Board._bp,
+      Board._bp,
+      Board._bp,
+      Board._bp,
+    ],
+    [null, null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null, null],
+    [
+      Board._wp,
+      Board._wp,
+      Board._wp,
+      Board._wp,
+      Board._wp,
+      Board._wp,
+      Board._wp,
+      Board._wp,
+    ],
+    [
+      Board._wr,
+      Board._wk,
+      Board._wb,
+      Board._wq,
+      Board._wking,
+      Board._wb,
+      Board._wk,
+      Board._wr,
+    ],
   ];
+
+  Position? _selected;
+
+  bool _isSelected(int col, int row) {
+    if (_selected == null) return false;
+
+    return _selected!.col == col && _selected!.row == row;
+  }
+
+  void _move(int col, int row) {
+    if (_selected == null) return;
+
+    final currCol = _selected!.col;
+    final currRow = _selected!.row;
+
+    // can't move to current selected position
+    if (col == currCol && row == currRow) return;
+
+    final piece = _board[currCol][_selected!.row];
+    if (piece == null) return;
+
+    final targetPiece = _board[col][row];
+    final bool isEmpty = targetPiece == null;
+
+    // can't take same color piece
+    if (!isEmpty && targetPiece.color == piece.color) return;
+
+    _board[col][row] = piece;
+
+    _board[_selected!.col][_selected!.row] = null;
+    _selected = null;
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        Text('left side'),
+        const Text('left side'),
         Expanded(
           child: Center(
             child: AspectRatio(
@@ -77,23 +165,55 @@ class Board extends StatelessWidget {
                 child: Column(
                   children: _board.asMap().entries.map(
                     (entry) {
-                      final startWhite = entry.key.isEven;
+                      final col = entry.key;
+                      final startWhite = col.isEven;
                       return Flexible(
                         child: Row(
                           children: entry.value.asMap().entries.map(
                             (entry) {
-                              final Color color = entry.key.isEven == startWhite
+                              final row = entry.key;
+                              final Color color = row.isEven == startWhite
                                   ? Colors.white
                                   : Colors.black;
-                              return Expanded(
-                                child: Container(
-                                  color: color,
+
+                              final piece = entry.value;
+
+                              Widget? child;
+
+                              if (piece != null) {
+                                child = GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
+                                  onTap: _selected == null
+                                      ? () {
+                                          setState(() {
+                                            _selected = Position(col, row);
+                                          });
+                                        }
+                                      : null,
                                   child: Center(
                                     child: Text(
-                                      entry.value,
-                                      style:
-                                          const TextStyle(color: Colors.grey),
+                                      piece.display,
+                                      style: const TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: 30.0,
+                                      ),
                                     ),
+                                  ),
+                                );
+                              }
+
+                              return Expanded(
+                                child: GestureDetector(
+                                  onTap: _selected != null
+                                      ? () {
+                                          _move(col, row);
+                                        }
+                                      : null,
+                                  child: Container(
+                                    color: _isSelected(col, row)
+                                        ? Colors.orange.shade100
+                                        : color,
+                                    child: child,
                                   ),
                                 ),
                               );
@@ -113,12 +233,43 @@ class Board extends StatelessWidget {
   }
 }
 
+class Position {
+  final int col;
+  final int row;
+
+  const Position(this.col, this.row);
+}
+
+enum PlayerColor { white, black }
+
 class Piece {
+  final PlayerColor color;
   final String name;
   final String display;
 
-  Piece({
+  const Piece({
+    required this.color,
     required this.name,
     required this.display,
   });
+
+  factory Piece.white({
+    required String name,
+    required String display,
+  }) =>
+      Piece(
+        color: PlayerColor.white,
+        name: name,
+        display: display,
+      );
+
+  factory Piece.black({
+    required String name,
+    required String display,
+  }) =>
+      Piece(
+        color: PlayerColor.black,
+        name: name,
+        display: display,
+      );
 }
