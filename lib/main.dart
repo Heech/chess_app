@@ -323,7 +323,7 @@ class Pieces {
         Piece.white(
           name: 'white bishop',
           display: 'wb',
-          validMoveChecker: PawnValidMoveChecker(),
+          validMoveChecker: BishopValidMoveChecker(),
         ),
         Piece.white(
           name: 'white queen',
@@ -338,7 +338,7 @@ class Pieces {
         Piece.white(
           name: 'white bishop',
           display: 'wb',
-          validMoveChecker: PawnValidMoveChecker(),
+          validMoveChecker: BishopValidMoveChecker(),
         ),
         Piece.white(
           name: 'white knight',
@@ -375,7 +375,7 @@ class Pieces {
         Piece.black(
           name: 'black bishop',
           display: 'bb',
-          validMoveChecker: PawnValidMoveChecker(),
+          validMoveChecker: BishopValidMoveChecker(),
         ),
         Piece.black(
           name: 'black queen',
@@ -390,7 +390,7 @@ class Pieces {
         Piece.black(
           name: 'black bishop',
           display: 'bb',
-          validMoveChecker: PawnValidMoveChecker(),
+          validMoveChecker: BishopValidMoveChecker(),
         ),
         Piece.black(
           name: 'black knight',
@@ -674,6 +674,126 @@ class KnightValidMoveChecker implements ValidMoveChecker {
       }
     }
 
+    return validMoves;
+  }
+
+  bool _inBounds(int col, int row) =>
+      (col >= 0 && col <= 7 && row >= 0 && row <= 7);
+}
+
+class BishopValidMoveChecker implements ValidMoveChecker {
+  @override
+  List<Position> getValidMoves(
+    List<List<Piece?>> board,
+    Piece piece,
+    Position position,
+  ) {
+    List<Position> validMoves = [];
+
+    validMoves.addAll(
+      exploreUpRight(board, position.col - 1, position.row + 1, piece.color),
+    );
+
+    validMoves.addAll(
+      exploreDownRight(board, position.col + 1, position.row + 1, piece.color),
+    );
+
+    validMoves.addAll(
+      exploreDownLeft(board, position.col + 1, position.row - 1, piece.color),
+    );
+
+    validMoves.addAll(
+      exploreUpLeft(board, position.col - 1, position.row - 1, piece.color),
+    );
+
+    return validMoves;
+  }
+
+  List<Position> exploreUpRight(
+    List<List<Piece?>> board,
+    int col,
+    int row,
+    PlayerColor color,
+  ) {
+    if (!_inBounds(col, row)) return [];
+
+    final targetSquare = board[col][row];
+    if (targetSquare != null) {
+      if (targetSquare.color == color) {
+        return [];
+      } else {
+        return [Position(col, row)];
+      }
+    }
+
+    List<Position> validMoves = [Position(col, row)];
+    validMoves.addAll(exploreUpRight(board, col - 1, row + 1, color));
+    return validMoves;
+  }
+
+  List<Position> exploreDownRight(
+    List<List<Piece?>> board,
+    int col,
+    int row,
+    PlayerColor color,
+  ) {
+    if (!_inBounds(col, row)) return [];
+
+    final targetSquare = board[col][row];
+    if (targetSquare != null) {
+      if (targetSquare.color == color) {
+        return [];
+      } else {
+        return [Position(col, row)];
+      }
+    }
+
+    List<Position> validMoves = [Position(col, row)];
+    validMoves.addAll(exploreDownRight(board, col + 1, row + 1, color));
+    return validMoves;
+  }
+
+  List<Position> exploreDownLeft(
+    List<List<Piece?>> board,
+    int col,
+    int row,
+    PlayerColor color,
+  ) {
+    if (!_inBounds(col, row)) return [];
+
+    final targetSquare = board[col][row];
+    if (targetSquare != null) {
+      if (targetSquare.color == color) {
+        return [];
+      } else {
+        return [Position(col, row)];
+      }
+    }
+
+    List<Position> validMoves = [Position(col, row)];
+    validMoves.addAll(exploreDownLeft(board, col + 1, row - 1, color));
+    return validMoves;
+  }
+
+  List<Position> exploreUpLeft(
+    List<List<Piece?>> board,
+    int col,
+    int row,
+    PlayerColor color,
+  ) {
+    if (!_inBounds(col, row)) return [];
+
+    final targetSquare = board[col][row];
+    if (targetSquare != null) {
+      if (targetSquare.color == color) {
+        return [];
+      } else {
+        return [Position(col, row)];
+      }
+    }
+
+    List<Position> validMoves = [Position(col, row)];
+    validMoves.addAll(exploreUpLeft(board, col - 1, row - 1, color));
     return validMoves;
   }
 
