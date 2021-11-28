@@ -108,15 +108,15 @@ class _ChessBoardState extends State<ChessBoard> {
       return;
     }
 
-    // move selected to new position and increment movement counter
-    _board[col][row] = selectedPiece;
-    selectedPiece.numberMoves += 1;
-
     // clear previous position and selected
     // have to copy into a new row without the selected piece
     _board[currCol] = _board[currCol]
         .map((piece) => piece != selectedPiece ? piece : null)
         .toList();
+
+    // move selected to new position and increment movement counter
+    _board[col][row] = selectedPiece;
+    selectedPiece.numberMoves += 1;
 
     _clearSelected();
 
@@ -268,6 +268,7 @@ class Piece {
   final PlayerColor color;
   final String name;
   final String display;
+  final ValidMoveChecker validMoveChecker;
 
   int numberMoves = 0;
 
@@ -275,30 +276,33 @@ class Piece {
     required this.color,
     required this.name,
     required this.display,
+    required this.validMoveChecker,
   });
 
   factory Piece.white({
     required String name,
     required String display,
+    required ValidMoveChecker validMoveChecker,
   }) =>
       Piece(
-        color: PlayerColor.white,
-        name: name,
-        display: display,
-      );
+          color: PlayerColor.white,
+          name: name,
+          display: display,
+          validMoveChecker: validMoveChecker);
 
   factory Piece.black({
     required String name,
     required String display,
+    required ValidMoveChecker validMoveChecker,
   }) =>
       Piece(
-        color: PlayerColor.black,
-        name: name,
-        display: display,
-      );
+          color: PlayerColor.black,
+          name: name,
+          display: display,
+          validMoveChecker: validMoveChecker);
 
   List<Position> getValidMoves(List<List<Piece?>> board, Position position) {
-    return PawnValidMoveChecker().getValidMoves(board, this, position);
+    return validMoveChecker.getValidMoves(board, this, position);
   }
 
   bool get isWhite => color == PlayerColor.white;
@@ -306,35 +310,107 @@ class Piece {
 
 class Pieces {
   static List<Piece> getWhiteBackRow() => [
-        Piece.white(name: 'white rook', display: 'wr'),
-        Piece.white(name: 'white knight', display: 'wk'),
-        Piece.white(name: 'white bishop', display: 'wb'),
-        Piece.white(name: 'white queen', display: 'wq'),
-        Piece.white(name: 'white king', display: 'wK'),
-        Piece.white(name: 'white bishop', display: 'wb'),
-        Piece.white(name: 'white knight', display: 'wk'),
-        Piece.white(name: 'white rook', display: 'wr'),
+        Piece.white(
+          name: 'white rook',
+          display: 'wr',
+          validMoveChecker: RookValidMoveChecker(),
+        ),
+        Piece.white(
+          name: 'white knight',
+          display: 'wk',
+          validMoveChecker: PawnValidMoveChecker(),
+        ),
+        Piece.white(
+          name: 'white bishop',
+          display: 'wb',
+          validMoveChecker: PawnValidMoveChecker(),
+        ),
+        Piece.white(
+          name: 'white queen',
+          display: 'wq',
+          validMoveChecker: PawnValidMoveChecker(),
+        ),
+        Piece.white(
+          name: 'white king',
+          display: 'wK',
+          validMoveChecker: PawnValidMoveChecker(),
+        ),
+        Piece.white(
+          name: 'white bishop',
+          display: 'wb',
+          validMoveChecker: PawnValidMoveChecker(),
+        ),
+        Piece.white(
+          name: 'white knight',
+          display: 'wk',
+          validMoveChecker: PawnValidMoveChecker(),
+        ),
+        Piece.white(
+          name: 'white rook',
+          display: 'wr',
+          validMoveChecker: RookValidMoveChecker(),
+        ),
       ];
 
   static List<Piece> getWhiteFrontRow() => List.generate(
         8,
-        (_) => Piece.white(name: 'white pawn', display: 'wp'),
+        (_) => Piece.white(
+          name: 'white pawn',
+          display: 'wp',
+          validMoveChecker: PawnValidMoveChecker(),
+        ),
       );
 
   static List<Piece> getBlackBackRow() => [
-        Piece.black(name: 'black rook', display: 'br'),
-        Piece.black(name: 'black knight', display: 'bk'),
-        Piece.black(name: 'black bishop', display: 'bb'),
-        Piece.black(name: 'black queen', display: 'bq'),
-        Piece.black(name: 'black king', display: 'bK'),
-        Piece.black(name: 'black bishop', display: 'bb'),
-        Piece.black(name: 'black knight', display: 'bk'),
-        Piece.black(name: 'black rook', display: 'br'),
+        Piece.black(
+          name: 'black rook',
+          display: 'br',
+          validMoveChecker: RookValidMoveChecker(),
+        ),
+        Piece.black(
+          name: 'black knight',
+          display: 'bk',
+          validMoveChecker: PawnValidMoveChecker(),
+        ),
+        Piece.black(
+          name: 'black bishop',
+          display: 'bb',
+          validMoveChecker: PawnValidMoveChecker(),
+        ),
+        Piece.black(
+          name: 'black queen',
+          display: 'bq',
+          validMoveChecker: PawnValidMoveChecker(),
+        ),
+        Piece.black(
+          name: 'black king',
+          display: 'bK',
+          validMoveChecker: PawnValidMoveChecker(),
+        ),
+        Piece.black(
+          name: 'black bishop',
+          display: 'bb',
+          validMoveChecker: PawnValidMoveChecker(),
+        ),
+        Piece.black(
+          name: 'black knight',
+          display: 'bk',
+          validMoveChecker: PawnValidMoveChecker(),
+        ),
+        Piece.black(
+          name: 'black rook',
+          display: 'br',
+          validMoveChecker: RookValidMoveChecker(),
+        ),
       ];
 
   static List<Piece> getBlackFrontRow() => List.generate(
         8,
-        (_) => Piece.black(name: 'black pawn', display: 'bp'),
+        (_) => Piece.black(
+          name: 'black pawn',
+          display: 'bp',
+          validMoveChecker: PawnValidMoveChecker(),
+        ),
       );
 }
 
@@ -395,6 +471,119 @@ class PawnValidMoveChecker implements ValidMoveChecker {
       }
     }
 
+    return validMoves;
+  }
+
+  bool _inBounds(int col, int row) =>
+      (col >= 0 && col <= 7 && row >= 0 && row <= 7);
+}
+
+class RookValidMoveChecker implements ValidMoveChecker {
+  @override
+  List<Position> getValidMoves(
+    List<List<Piece?>> board,
+    Piece piece,
+    Position position,
+  ) {
+    List<Position> validMoves = [];
+
+    validMoves
+        .addAll(exploreUp(board, position.col, position.row - 1, piece.color));
+    validMoves.addAll(
+        exploreRight(board, position.col + 1, position.row, piece.color));
+    validMoves.addAll(
+        exploreDown(board, position.col, position.row + 1, piece.color));
+    validMoves.addAll(
+        exploreLeft(board, position.col - 1, position.row, piece.color));
+
+    return validMoves;
+  }
+
+  List<Position> exploreUp(
+    List<List<Piece?>> board,
+    int col,
+    int row,
+    PlayerColor color,
+  ) {
+    if (!_inBounds(col, row)) return [];
+
+    final targetSquare = board[col][row];
+    if (targetSquare != null) {
+      if (targetSquare.color == color) {
+        return [];
+      } else {
+        return [Position(col, row)];
+      }
+    }
+
+    List<Position> validMoves = [Position(col, row)];
+    validMoves.addAll(exploreUp(board, col, row - 1, color));
+    return validMoves;
+  }
+
+  List<Position> exploreDown(
+    List<List<Piece?>> board,
+    int col,
+    int row,
+    PlayerColor color,
+  ) {
+    if (!_inBounds(col, row)) return [];
+
+    final targetSquare = board[col][row];
+    if (targetSquare != null) {
+      if (targetSquare.color == color) {
+        return [];
+      } else {
+        return [Position(col, row)];
+      }
+    }
+
+    List<Position> validMoves = [Position(col, row)];
+    validMoves.addAll(exploreDown(board, col, row + 1, color));
+    return validMoves;
+  }
+
+  List<Position> exploreRight(
+    List<List<Piece?>> board,
+    int col,
+    int row,
+    PlayerColor color,
+  ) {
+    if (!_inBounds(col, row)) return [];
+
+    final targetSquare = board[col][row];
+    if (targetSquare != null) {
+      if (targetSquare.color == color) {
+        return [];
+      } else {
+        return [Position(col, row)];
+      }
+    }
+
+    List<Position> validMoves = [Position(col, row)];
+    validMoves.addAll(exploreRight(board, col + 1, row, color));
+    return validMoves;
+  }
+
+  List<Position> exploreLeft(
+    List<List<Piece?>> board,
+    int col,
+    int row,
+    PlayerColor color,
+  ) {
+    if (!_inBounds(col, row)) return [];
+
+    final targetSquare = board[col][row];
+    if (targetSquare != null) {
+      if (targetSquare.color == color) {
+        return [];
+      } else {
+        return [Position(col, row)];
+      }
+    }
+
+    List<Position> validMoves = [Position(col, row)];
+    validMoves.addAll(exploreLeft(board, col - 1, row, color));
     return validMoves;
   }
 
