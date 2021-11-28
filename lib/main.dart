@@ -318,7 +318,7 @@ class Pieces {
         Piece.white(
           name: 'white knight',
           display: 'wk',
-          validMoveChecker: PawnValidMoveChecker(),
+          validMoveChecker: KnightValidMoveChecker(),
         ),
         Piece.white(
           name: 'white bishop',
@@ -343,7 +343,7 @@ class Pieces {
         Piece.white(
           name: 'white knight',
           display: 'wk',
-          validMoveChecker: PawnValidMoveChecker(),
+          validMoveChecker: KnightValidMoveChecker(),
         ),
         Piece.white(
           name: 'white rook',
@@ -370,7 +370,7 @@ class Pieces {
         Piece.black(
           name: 'black knight',
           display: 'bk',
-          validMoveChecker: PawnValidMoveChecker(),
+          validMoveChecker: KnightValidMoveChecker(),
         ),
         Piece.black(
           name: 'black bishop',
@@ -395,7 +395,7 @@ class Pieces {
         Piece.black(
           name: 'black knight',
           display: 'bk',
-          validMoveChecker: PawnValidMoveChecker(),
+          validMoveChecker: KnightValidMoveChecker(),
         ),
         Piece.black(
           name: 'black rook',
@@ -584,6 +584,96 @@ class RookValidMoveChecker implements ValidMoveChecker {
 
     List<Position> validMoves = [Position(col, row)];
     validMoves.addAll(exploreLeft(board, col - 1, row, color));
+    return validMoves;
+  }
+
+  bool _inBounds(int col, int row) =>
+      (col >= 0 && col <= 7 && row >= 0 && row <= 7);
+}
+
+class KnightValidMoveChecker implements ValidMoveChecker {
+  @override
+  List<Position> getValidMoves(
+    List<List<Piece?>> board,
+    Piece piece,
+    Position position,
+  ) {
+    List<Position> validMoves = [];
+
+    int col, row;
+
+    col = position.col - 2;
+    row = position.row + 1;
+    if (_inBounds(col, row)) {
+      final targetSquare = board[col][row];
+      if (targetSquare == null || targetSquare.color != piece.color) {
+        validMoves.add(Position(col, row));
+      }
+    }
+
+    col = position.col + 1;
+    row = position.row + 2;
+    if (_inBounds(col, row)) {
+      final targetSquare = board[col][row];
+      if (targetSquare == null || targetSquare.color != piece.color) {
+        validMoves.add(Position(col, row));
+      }
+    }
+
+    col = position.col + 2;
+    row = position.row + 1;
+    if (_inBounds(col, row)) {
+      final targetSquare = board[col][row];
+      if (targetSquare == null || targetSquare.color != piece.color) {
+        validMoves.add(Position(col, row));
+      }
+    }
+
+    col = position.col + 2;
+    row = position.row - 1;
+    if (_inBounds(col, row)) {
+      final targetSquare = board[col][row];
+      if (targetSquare == null || targetSquare.color != piece.color) {
+        validMoves.add(Position(col, row));
+      }
+    }
+
+    col = position.col + 1;
+    row = position.row - 2;
+    if (_inBounds(col, row)) {
+      final targetSquare = board[col][row];
+      if (targetSquare == null || targetSquare.color != piece.color) {
+        validMoves.add(Position(col, row));
+      }
+    }
+
+    col = position.col - 1;
+    row = position.row + 2;
+    if (_inBounds(col, row)) {
+      final targetSquare = board[col][row];
+      if (targetSquare == null || targetSquare.color != piece.color) {
+        validMoves.add(Position(col, row));
+      }
+    }
+
+    col = position.col - 1;
+    row = position.row - 2;
+    if (_inBounds(col, row)) {
+      final targetSquare = board[col][row];
+      if (targetSquare == null || targetSquare.color != piece.color) {
+        validMoves.add(Position(col, row));
+      }
+    }
+
+    col = position.col - 2;
+    row = position.row - 1;
+    if (_inBounds(col, row)) {
+      final targetSquare = board[col][row];
+      if (targetSquare == null || targetSquare.color != piece.color) {
+        validMoves.add(Position(col, row));
+      }
+    }
+
     return validMoves;
   }
 
