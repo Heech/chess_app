@@ -79,23 +79,72 @@ class _ChessBoardState extends State<ChessBoard> {
     final currCol = _selected!.col;
     final currRow = _selected!.row;
 
+    final selectedPiece = _board[currCol][currRow];
+    if (selectedPiece == null) return;
+
     // can't move to current selected position
-    if (col == currCol && row == currRow) return;
+    if (col == currCol && row == currRow) {
+      _clearSelected();
+      return;
+    }
 
-    final piece = _board[currCol][_selected!.row];
-    if (piece == null) return;
+    final targetSquarePiece = _board[col][row];
+    final bool isEmpty = targetSquarePiece == null;
 
-    final targetPiece = _board[col][row];
-    final bool isEmpty = targetPiece == null;
+    // can't attack piece of same color
+    if (!isEmpty && targetSquarePiece.color == selectedPiece.color) {
+      _clearSelected();
+      return;
+    }
 
-    // can't take same color piece
-    if (!isEmpty && targetPiece.color == piece.color) return;
+    final validMoves =
+        selectedPiece.getValidMoves(_board, Position(currCol, currRow));
+    if (!_isValidMove(Position(col, row), validMoves)) {
+      _clearSelected();
+      return;
+    }
 
-    _board[col][row] = piece;
+    // move selected to new position and increment movement counter
+    _board[col][row] = selectedPiece;
+    selectedPiece.numberMoves += 1;
 
-    _board[_selected!.col][_selected!.row] = null;
-    _selected = null;
-    setState(() {});
+    // clear previous position and selected
+    // have to copy into a new row without the selected piece
+    _board[currCol] = _board[currCol]
+        .map((piece) => piece != selectedPiece ? piece : null)
+        .toList();
+
+    _clearSelected();
+  }
+
+  void _clearSelected() {
+    setState(() {
+      _selected = null;
+    });
+  }
+
+  bool _isValidMove(Position pos, List<Position> validPositions) {
+    bool isValidMove = false;
+    for (final validPos in validPositions) {
+      if (validPos.col == pos.col && validPos.row == pos.row) {
+        isValidMove = true;
+        break;
+      }
+    }
+
+    return isValidMove;
+  }
+
+  List<Position> _getValidMoves() {
+    if (_selected == null) return [];
+
+    final currCol = _selected!.col;
+    final currRow = _selected!.row;
+
+    final selectedPiece = _board[currCol][currRow];
+    if (selectedPiece == null) return [];
+
+    return selectedPiece.getValidMoves(_board, _selected as Position);
   }
 
   @override
@@ -152,6 +201,11 @@ class _ChessBoardState extends State<ChessBoard> {
                                 );
                               }
 
+                              final isValidMove = _isValidMove(
+                                Position(col, row),
+                                _getValidMoves(),
+                              );
+
                               return Expanded(
                                 child: GestureDetector(
                                   onTap: _selected != null
@@ -160,7 +214,7 @@ class _ChessBoardState extends State<ChessBoard> {
                                         }
                                       : null,
                                   child: Container(
-                                    color: _isSelected(col, row)
+                                    color: _isSelected(col, row) || isValidMove
                                         ? Colors.orange.shade100
                                         : color,
                                     child: child,
@@ -197,7 +251,9 @@ class Piece {
   final String name;
   final String display;
 
-  const Piece({
+  int numberMoves = 0;
+
+  Piece({
     required this.color,
     required this.name,
     required this.display,
@@ -222,6 +278,13 @@ class Piece {
         name: name,
         display: display,
       );
+
+  List<Position> getValidMoves(List<List<Piece?>> board, Position position) {
+    return PawnValidMoveChecker().getValidMoves(board, this, position);
+  }
+
+  bool get isWhite => color == PlayerColor.white;
+}
 
 class Pieces {
   static List<Piece> getWhiteBackRow() => [
@@ -256,4 +319,67 @@ class Pieces {
         (_) => Piece.black(name: 'black pawn', display: 'bp'),
       );
 }
+
+abstract class ValidMoveChecker {
+  List<Position> getValidMoves(
+    List<List<Piece?>> board,
+    Piece piece,
+    Position position,
+  );
+}
+
+class PawnValidMoveChecker implements ValidMoveChecker {
+  @override
+  List<Position> getValidMoves(
+    List<List<Piece?>> board,
+    Piece piece,
+    Position position,
+  ) {
+    List<Position> validMoves = [];
+
+    int col, row;
+
+    col = piece.isWhite ? position.col - 1 : position.col + 1;
+    row = position.row;
+    if (_inBounds(col, row)) {
+      final targetSquare = board[col][row];
+      if (targetSquare == null) {
+        validMoves.add(Position(col, row));
+      }
+    }
+
+    if (piece.numberMoves < 1) {
+      col = piece.isWhite ? position.col - 2 : position.col + 2;
+      row = position.row;
+      if (_inBounds(col, row)) {
+        final targetSquare = board[col][row];
+        if (targetSquare == null) {
+          validMoves.add(Position(col, row));
+        }
+      }
+    }
+
+    col = piece.isWhite ? position.col - 1 : position.col + 1;
+    row = piece.isWhite ? position.row + 1 : position.row - 1;
+    if (_inBounds(col, row)) {
+      final targetSquare = board[col][row];
+      if (targetSquare != null && targetSquare.color != piece.color) {
+        validMoves.add(Position(col, row));
+      }
+    }
+
+    col = piece.isWhite ? position.col - 1 : position.col + 1;
+    row = piece.isWhite ? position.row - 1 : position.row + 1;
+    if (_inBounds(col, row)) {
+      final targetSquare = board[col][row];
+      if (targetSquare != null && targetSquare.color != piece.color) {
+        validMoves.add(Position(col, row));
+      }
+    }
+
+    return validMoves;
+  }
+
+  bool _inBounds(int col, int row) =>
+      (col >= 0 && col <= 7 && row >= 0 && row <= 7);
 }
