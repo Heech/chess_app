@@ -39,80 +39,30 @@ class _MyHomePageState extends State<MyHomePage> {
       body: const Padding(
         padding: EdgeInsets.all(20.0),
         child: Center(
-          child: Board(),
+          child: ChessBoard(),
         ),
       ),
     );
   }
 }
 
-class Board extends StatefulWidget {
-  const Board({Key? key}) : super(key: key);
-
-  static final _wp = Piece.white(name: 'white pawn', display: 'wp');
-  static final _wr = Piece.white(name: 'white rook', display: 'wr');
-  static final _wk = Piece.white(name: 'white knight', display: 'wk');
-  static final _wb = Piece.white(name: 'white bishop', display: 'wb');
-  static final _wq = Piece.white(name: 'white queen', display: 'wq');
-  static final _wking = Piece.white(name: 'white king', display: 'wK');
-
-  static final _bp = Piece.black(name: 'black pawn', display: 'bp');
-  static final _br = Piece.black(name: 'black rook', display: 'br');
-  static final _bk = Piece.black(name: 'black knight', display: 'bk');
-  static final _bb = Piece.black(name: 'black bishop', display: 'bb');
-  static final _bq = Piece.black(name: 'black queen', display: 'bq');
-  static final _bking = Piece.black(name: 'black king', display: 'bK');
+class ChessBoard extends StatefulWidget {
+  const ChessBoard({Key? key}) : super(key: key);
 
   @override
-  State<Board> createState() => _BoardState();
+  State<ChessBoard> createState() => _ChessBoardState();
 }
 
-class _BoardState extends State<Board> {
+class _ChessBoardState extends State<ChessBoard> {
   final List<List<Piece?>> _board = [
-    [
-      Board._br,
-      Board._bk,
-      Board._bb,
-      Board._bq,
-      Board._bking,
-      Board._bb,
-      Board._bk,
-      Board._br,
-    ],
-    [
-      Board._bp,
-      Board._bp,
-      Board._bp,
-      Board._bp,
-      Board._bp,
-      Board._bp,
-      Board._bp,
-      Board._bp,
-    ],
+    Pieces.getBlackBackRow(),
+    Pieces.getBlackFrontRow(),
     [null, null, null, null, null, null, null, null],
     [null, null, null, null, null, null, null, null],
     [null, null, null, null, null, null, null, null],
     [null, null, null, null, null, null, null, null],
-    [
-      Board._wp,
-      Board._wp,
-      Board._wp,
-      Board._wp,
-      Board._wp,
-      Board._wp,
-      Board._wp,
-      Board._wp,
-    ],
-    [
-      Board._wr,
-      Board._wk,
-      Board._wb,
-      Board._wq,
-      Board._wking,
-      Board._wb,
-      Board._wk,
-      Board._wr,
-    ],
+    Pieces.getWhiteFrontRow(),
+    Pieces.getWhiteBackRow(),
   ];
 
   Position? _selected;
@@ -272,4 +222,38 @@ class Piece {
         name: name,
         display: display,
       );
+
+class Pieces {
+  static List<Piece> getWhiteBackRow() => [
+        Piece.white(name: 'white rook', display: 'wr'),
+        Piece.white(name: 'white knight', display: 'wk'),
+        Piece.white(name: 'white bishop', display: 'wb'),
+        Piece.white(name: 'white queen', display: 'wq'),
+        Piece.white(name: 'white king', display: 'wK'),
+        Piece.white(name: 'white bishop', display: 'wb'),
+        Piece.white(name: 'white knight', display: 'wk'),
+        Piece.white(name: 'white rook', display: 'wr'),
+      ];
+
+  static List<Piece> getWhiteFrontRow() => List.generate(
+        8,
+        (_) => Piece.white(name: 'white pawn', display: 'wp'),
+      );
+
+  static List<Piece> getBlackBackRow() => [
+        Piece.black(name: 'black rook', display: 'br'),
+        Piece.black(name: 'black knight', display: 'bk'),
+        Piece.black(name: 'black bishop', display: 'bb'),
+        Piece.black(name: 'black queen', display: 'bq'),
+        Piece.black(name: 'black king', display: 'bK'),
+        Piece.black(name: 'black bishop', display: 'bb'),
+        Piece.black(name: 'black knight', display: 'bk'),
+        Piece.black(name: 'black rook', display: 'br'),
+      ];
+
+  static List<Piece> getBlackFrontRow() => List.generate(
+        8,
+        (_) => Piece.black(name: 'black pawn', display: 'bp'),
+      );
+}
 }
