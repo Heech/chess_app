@@ -67,10 +67,23 @@ class _ChessBoardState extends State<ChessBoard> {
 
   Position? _selected;
 
+  PlayerColor _currentPlayer = PlayerColor.white;
+
   bool _isSelected(int col, int row) {
     if (_selected == null) return false;
 
     return _selected!.col == col && _selected!.row == row;
+  }
+
+  void _selectPiece(Position position) {
+    final selectedPiece = _board[position.col][position.row];
+    if (selectedPiece == null) return;
+
+    if (selectedPiece.color != _currentPlayer) return;
+
+    setState(() {
+      _selected = position;
+    });
   }
 
   void _move(int col, int row) {
@@ -115,6 +128,13 @@ class _ChessBoardState extends State<ChessBoard> {
         .toList();
 
     _clearSelected();
+
+    // switch player turn
+    if (_currentPlayer == PlayerColor.white) {
+      _currentPlayer = PlayerColor.black;
+    } else {
+      _currentPlayer = PlayerColor.white;
+    }
   }
 
   void _clearSelected() {
@@ -149,88 +169,95 @@ class _ChessBoardState extends State<ChessBoard> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        const Text('left side'),
-        Expanded(
-          child: Center(
-            child: AspectRatio(
-              aspectRatio: 1,
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(),
-                ),
-                child: Column(
-                  children: _board.asMap().entries.map(
-                    (entry) {
-                      final col = entry.key;
-                      final startWhite = col.isEven;
-                      return Flexible(
-                        child: Row(
-                          children: entry.value.asMap().entries.map(
-                            (entry) {
-                              final row = entry.key;
-                              final Color color = row.isEven == startWhite
-                                  ? Colors.white
-                                  : Colors.black;
+        Text(_currentPlayer == PlayerColor.white
+            ? 'White to move'
+            : 'Black to move'),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            const Text('left side'),
+            Expanded(
+              child: Center(
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(),
+                    ),
+                    child: Column(
+                      children: _board.asMap().entries.map(
+                        (entry) {
+                          final col = entry.key;
+                          final startWhite = col.isEven;
+                          return Flexible(
+                            child: Row(
+                              children: entry.value.asMap().entries.map(
+                                (entry) {
+                                  final row = entry.key;
+                                  final Color color = row.isEven == startWhite
+                                      ? Colors.white
+                                      : Colors.black;
 
-                              final piece = entry.value;
+                                  final piece = entry.value;
 
-                              Widget? child;
+                                  Widget? child;
 
-                              if (piece != null) {
-                                child = GestureDetector(
-                                  behavior: HitTestBehavior.opaque,
-                                  onTap: _selected == null
-                                      ? () {
-                                          setState(() {
-                                            _selected = Position(col, row);
-                                          });
-                                        }
-                                      : null,
-                                  child: Center(
-                                    child: Text(
-                                      piece.display,
-                                      style: const TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 30.0,
+                                  if (piece != null) {
+                                    child = GestureDetector(
+                                      behavior: HitTestBehavior.opaque,
+                                      onTap: _selected == null
+                                          ? () {
+                                              _selectPiece(Position(col, row));
+                                            }
+                                          : null,
+                                      child: Center(
+                                        child: Text(
+                                          piece.display,
+                                          style: const TextStyle(
+                                            color: Colors.grey,
+                                            fontSize: 30.0,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }
+
+                                  final isValidMove = _isValidMove(
+                                    Position(col, row),
+                                    _getValidMoves(),
+                                  );
+
+                                  return Expanded(
+                                    child: GestureDetector(
+                                      onTap: _selected != null
+                                          ? () {
+                                              _move(col, row);
+                                            }
+                                          : null,
+                                      child: Container(
+                                        color:
+                                            _isSelected(col, row) || isValidMove
+                                                ? Colors.orange.shade100
+                                                : color,
+                                        child: child,
                                       ),
                                     ),
-                                  ),
-                                );
-                              }
-
-                              final isValidMove = _isValidMove(
-                                Position(col, row),
-                                _getValidMoves(),
-                              );
-
-                              return Expanded(
-                                child: GestureDetector(
-                                  onTap: _selected != null
-                                      ? () {
-                                          _move(col, row);
-                                        }
-                                      : null,
-                                  child: Container(
-                                    color: _isSelected(col, row) || isValidMove
-                                        ? Colors.orange.shade100
-                                        : color,
-                                    child: child,
-                                  ),
-                                ),
-                              );
-                            },
-                          ).toList(),
-                        ),
-                      );
-                    },
-                  ).toList(),
+                                  );
+                                },
+                              ).toList(),
+                            ),
+                          );
+                        },
+                      ).toList(),
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
+          ],
         ),
       ],
     );
