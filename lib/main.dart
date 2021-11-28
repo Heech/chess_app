@@ -101,15 +101,6 @@ class _ChessBoardState extends State<ChessBoard> {
       return;
     }
 
-    final targetSquarePiece = _board[col][row];
-    final bool isEmpty = targetSquarePiece == null;
-
-    // can't attack piece of same color
-    if (!isEmpty && targetSquarePiece.color == selectedPiece.color) {
-      _clearSelected();
-      return;
-    }
-
     final validMoves =
         selectedPiece.getValidMoves(_board, Position(currCol, currRow));
     if (!_isValidMove(Position(col, row), validMoves)) {
