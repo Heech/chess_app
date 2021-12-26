@@ -228,12 +228,19 @@ class _ChessBoardState extends State<ChessBoard> {
                                               _move(col, row);
                                             }
                                           : null,
-                                      child: Container(
-                                        color:
-                                            _isSelected(col, row) || isValidMove
-                                                ? Colors.orange.shade100
-                                                : color,
-                                        child: child,
+                                      child: Stack(
+                                        children: [
+                                          Container(
+                                            color: color,
+                                          ),
+                                          if (_isSelected(col, row) ||
+                                              isValidMove)
+                                            Container(
+                                              color: Colors.orange.withOpacity(0.4),
+                                            ),
+                                          if (child != null)
+                                            child,
+                                        ],
                                       ),
                                     ),
                                   );
