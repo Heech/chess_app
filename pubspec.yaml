@@ -35,6 +35,9 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
 
+  # chess svg widgets
+  chess_vectors_flutter: "1.0.16"
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

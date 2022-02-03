@@ -1,3 +1,4 @@
+import 'package:chess_vectors_flutter/chess_vectors_flutter.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -54,6 +55,8 @@ class ChessBoard extends StatefulWidget {
 }
 
 class _ChessBoardState extends State<ChessBoard> {
+  final whiteSquareColor = Colors.white;
+  final blackSquareColor = Colors.brown.shade700;
   final List<List<Piece?>> _board = [
     Pieces.getBlackBackRow(),
     Pieces.getBlackFrontRow(),
@@ -189,8 +192,8 @@ class _ChessBoardState extends State<ChessBoard> {
                                 (entry) {
                                   final row = entry.key;
                                   final Color color = row.isEven == startWhite
-                                      ? Colors.white
-                                      : Colors.black;
+                                      ? whiteSquareColor
+                                      : blackSquareColor;
 
                                   final piece = entry.value;
 
@@ -204,14 +207,14 @@ class _ChessBoardState extends State<ChessBoard> {
                                               _selectPiece(Position(col, row));
                                             }
                                           : null,
-                                      child: Center(
-                                        child: Text(
-                                          piece.display,
-                                          style: const TextStyle(
-                                            color: Colors.grey,
-                                            fontSize: 30.0,
-                                          ),
-                                        ),
+                                      child: LayoutBuilder(
+                                        builder: (context, constraints) {
+                                          return SizedBox(
+                                            width: constraints.maxWidth,
+                                            height: constraints.maxHeight,
+                                            child: piece.widget,
+                                          );
+                                        },
                                       ),
                                     );
                                   }
@@ -236,10 +239,10 @@ class _ChessBoardState extends State<ChessBoard> {
                                           if (_isSelected(col, row) ||
                                               isValidMove)
                                             Container(
-                                              color: Colors.orange.withOpacity(0.4),
+                                              color: Colors.orange
+                                                  .withOpacity(0.4),
                                             ),
-                                          if (child != null)
-                                            child,
+                                          if (child != null) child,
                                         ],
                                       ),
                                     ),
@@ -274,7 +277,7 @@ enum PlayerColor { white, black }
 class Piece {
   final PlayerColor color;
   final String name;
-  final String display;
+  final Widget widget;
   final ValidMoveChecker validMoveChecker;
 
   int numberMoves = 0;
@@ -282,30 +285,30 @@ class Piece {
   Piece({
     required this.color,
     required this.name,
-    required this.display,
+    required this.widget,
     required this.validMoveChecker,
   });
 
   factory Piece.white({
     required String name,
-    required String display,
+    required Widget widget,
     required ValidMoveChecker validMoveChecker,
   }) =>
       Piece(
           color: PlayerColor.white,
           name: name,
-          display: display,
+          widget: widget,
           validMoveChecker: validMoveChecker);
 
   factory Piece.black({
     required String name,
-    required String display,
+    required Widget widget,
     required ValidMoveChecker validMoveChecker,
   }) =>
       Piece(
           color: PlayerColor.black,
           name: name,
-          display: display,
+          widget: widget,
           validMoveChecker: validMoveChecker);
 
   List<Position> getValidMoves(List<List<Piece?>> board, Position position) {
@@ -319,42 +322,42 @@ class Pieces {
   static List<Piece> getWhiteBackRow() => [
         Piece.white(
           name: 'white rook',
-          display: 'wr',
+          widget: WhiteRook(),
           validMoveChecker: RookValidMoveChecker(),
         ),
         Piece.white(
           name: 'white knight',
-          display: 'wk',
+          widget: WhiteKnight(),
           validMoveChecker: KnightValidMoveChecker(),
         ),
         Piece.white(
           name: 'white bishop',
-          display: 'wb',
+          widget: WhiteBishop(),
           validMoveChecker: BishopValidMoveChecker(),
         ),
         Piece.white(
           name: 'white queen',
-          display: 'wq',
+          widget: WhiteQueen(),
           validMoveChecker: QueenValidMoveChecker(),
         ),
         Piece.white(
           name: 'white king',
-          display: 'wK',
+          widget: WhiteKing(),
           validMoveChecker: KingValidMoveChecker(),
         ),
         Piece.white(
           name: 'white bishop',
-          display: 'wb',
+          widget: WhiteBishop(),
           validMoveChecker: BishopValidMoveChecker(),
         ),
         Piece.white(
           name: 'white knight',
-          display: 'wk',
+          widget: WhiteKnight(),
           validMoveChecker: KnightValidMoveChecker(),
         ),
         Piece.white(
           name: 'white rook',
-          display: 'wr',
+          widget: WhiteRook(),
           validMoveChecker: RookValidMoveChecker(),
         ),
       ];
@@ -363,7 +366,7 @@ class Pieces {
         8,
         (_) => Piece.white(
           name: 'white pawn',
-          display: 'wp',
+          widget: WhitePawn(),
           validMoveChecker: PawnValidMoveChecker(),
         ),
       );
@@ -371,42 +374,42 @@ class Pieces {
   static List<Piece> getBlackBackRow() => [
         Piece.black(
           name: 'black rook',
-          display: 'br',
+          widget: BlackRook(),
           validMoveChecker: RookValidMoveChecker(),
         ),
         Piece.black(
           name: 'black knight',
-          display: 'bk',
+          widget: BlackKnight(),
           validMoveChecker: KnightValidMoveChecker(),
         ),
         Piece.black(
           name: 'black bishop',
-          display: 'bb',
+          widget: BlackBishop(),
           validMoveChecker: BishopValidMoveChecker(),
         ),
         Piece.black(
           name: 'black queen',
-          display: 'bq',
+          widget: BlackQueen(),
           validMoveChecker: QueenValidMoveChecker(),
         ),
         Piece.black(
           name: 'black king',
-          display: 'bK',
+          widget: BlackKing(),
           validMoveChecker: KingValidMoveChecker(),
         ),
         Piece.black(
           name: 'black bishop',
-          display: 'bb',
+          widget: BlackBishop(),
           validMoveChecker: BishopValidMoveChecker(),
         ),
         Piece.black(
           name: 'black knight',
-          display: 'bk',
+          widget: BlackKnight(),
           validMoveChecker: KnightValidMoveChecker(),
         ),
         Piece.black(
           name: 'black rook',
-          display: 'br',
+          widget: BlackRook(),
           validMoveChecker: RookValidMoveChecker(),
         ),
       ];
@@ -415,7 +418,7 @@ class Pieces {
         8,
         (_) => Piece.black(
           name: 'black pawn',
-          display: 'bp',
+          widget: BlackPawn(),
           validMoveChecker: PawnValidMoveChecker(),
         ),
       );
